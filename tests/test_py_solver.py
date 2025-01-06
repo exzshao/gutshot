@@ -9,7 +9,9 @@ def test_solver():
             flop="Td9d6h",
             starting_pot=200,
             effective_stack=900,
-            turn="Qc"
+            turn="Qc",
+            bet_sizes="20%, 50%, a",
+            raise_sizes="3x" 
         )
         print("✅ Solver initialized successfully")
 

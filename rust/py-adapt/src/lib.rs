@@ -9,13 +9,15 @@ struct PostFlopSolver {
 #[pymethods]
 impl PostFlopSolver {
     #[new]
-    #[pyo3(signature = (oop_range, ip_range, flop, starting_pot, effective_stack, turn=None, river=None))]
+    #[pyo3(signature = (oop_range, ip_range, flop, starting_pot, effective_stack, bet_sizes, raise_sizes, turn=None, river=None))]
     fn new(
         oop_range: &str,
         ip_range: &str,
         flop: &str,
         starting_pot: i32,
         effective_stack: i32,
+        bet_sizes: &str,
+        raise_sizes: &str,
         turn: Option<&str>,
         river: Option<&str>,
     ) -> PyResult<Self> {
@@ -52,8 +54,8 @@ impl PostFlopSolver {
             river,
         };
 
-        let bet_sizes = BetSizeOptions::try_from(("60%, e, a", "2.5x"))
-            .map_err(|e| PyErr::new::<pyo3::exceptions::PyValueError, _>(format!("{}", e)))?;
+        let bet_sizes = BetSizeOptions::try_from((bet_sizes, raise_sizes))
+            .map_err(|e| PyErr::new::<pyo3::exceptions::PyValueError, _>(format!("Invalid bet sizes: {}", e)))?;
 
         let initial_state = if river != NOT_DEALT {
             BoardState::River
