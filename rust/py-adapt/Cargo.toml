@@ -1,0 +1,12 @@
+[package]
+name = "postflop_solver_python"
+version = "0.1.0"
+edition = "2021"
+
+[lib]
+name = "postflop_solver_python"
+crate-type = ["cdylib"]
+
+[dependencies]
+pyo3 = { version = "0.19", features = ["extension-module"] }
+postflop-solver = { path = "../postflop-solver" }  # Adjust this path to where your postflop-solver crate is
