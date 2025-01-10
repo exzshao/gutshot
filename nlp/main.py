@@ -1,16 +1,14 @@
 from openai import OpenAI
 from dotenv import load_dotenv
-import os
 load_dotenv()
 client = OpenAI()
 
 completion = client.chat.completions.create(
     model="gpt-4o-mini",
     messages=[
-        {"role": "user", "content": "i have 5h 5d. board comes with 3 diamonds. whats a possible board here?"}
+        {"role": "system", "content": "You are an assistant that helps users with poker-related questions and provides accurate information about possible boards. Be brief."},
+        {"role": "user", "content": "Button opens for 3bb, I call on bb. What would be a typical range for me and button? Output the range in comma-separated format using standard notation (e.g., 'AA,KK,AKs')"}
     ]
 )
-
-
 
 print(completion.choices[0].message.content)
