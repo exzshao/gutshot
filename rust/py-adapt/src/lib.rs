@@ -126,6 +126,91 @@ impl PostFlopSolver {
         self.game.back_to_root();
         Ok(())
     }
+
+    fn get_action_frequencies(&mut self) -> PyResult<Vec<(String, f32)>> {
+        let actions = self.game.available_actions();
+        let strategy = self.game.strategy();
+        let num_hands = self.game.private_cards(0).len();
+        
+        if actions.is_empty() {
+            return Ok(vec![]);
+        }
+
+        self.game.cache_normalized_weights();
+        
+        let mut frequencies = vec![0.0; actions.len()];
+        let weights = self.game.normalized_weights(0);
+
+        // Calculate weighted frequencies
+        for hand_idx in 0..num_hands {
+            for (action_idx, frequency) in frequencies.iter_mut().enumerate() {
+                let strategy_idx = action_idx * num_hands + hand_idx;
+                *frequency += strategy[strategy_idx] * weights[hand_idx];
+            }
+        }
+
+        // Normalize frequencies to sum to 1.0
+        let total: f32 = frequencies.iter().sum();
+        if total > 0.0 {
+            for freq in frequencies.iter_mut() {
+                *freq /= total;
+            }
+        }
+
+        // Convert to percentages and return
+        Ok(actions.iter()
+            .zip(frequencies.iter())
+            .map(|(action, &freq)| (format!("{:?}", action), freq))
+            .collect())
+    }
+
+    fn get_hand_frequencies(&self, hand_index: usize) -> PyResult<Vec<(String, f32)>> {
+        let actions = self.game.available_actions();
+        let strategy = self.game.strategy();
+        let num_hands = self.game.private_cards(0).len();
+        
+        if hand_index >= num_hands {
+            return Err(PyErr::new::<pyo3::exceptions::PyValueError, _>(
+                format!("Hand index {} is out of range (max: {})", hand_index, num_hands - 1)
+            ));
+        }
+
+        // Get frequencies for this specific hand
+        let frequencies: Vec<(String, f32)> = actions.iter()
+            .enumerate()
+            .map(|(action_idx, action)| {
+                let strategy_idx = action_idx * num_hands + hand_index;
+                (format!("{:?}", action), strategy[strategy_idx])
+            })
+            .collect();
+
+        Ok(frequencies)
+    }
+
+    /// Get frequencies for all hands with their corresponding cards
+    fn get_all_hand_frequencies(&self) -> PyResult<Vec<(String, Vec<(String, f32)>)>> {
+        let hands = holes_to_strings(&self.game.private_cards(0))
+            .map_err(|e| PyErr::new::<pyo3::exceptions::PyValueError, _>(format!("Failed to convert cards: {}", e)))?;
+        
+        let mut result = Vec::new();
+        
+        for (i, hand) in hands.iter().enumerate() {
+            let frequencies = self.get_hand_frequencies(i)?;
+            result.push((hand.clone(), frequencies));
+        }
+
+        Ok(result)
+    }
+
+    fn cache_normalized_weights(&mut self) -> PyResult<()> {
+        self.game.cache_normalized_weights();
+        Ok(())
+    }
+
+    /// Get normalized weights for player
+    fn get_normalized_weights(&self, player: usize) -> PyResult<Vec<f32>> {
+        Ok(self.game.normalized_weights(player).to_vec())
+    }
 }
 
 #[pymodule]
