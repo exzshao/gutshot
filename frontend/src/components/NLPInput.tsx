@@ -2,6 +2,7 @@
 
 import { useState, FormEvent, useRef, useEffect } from 'react'
 import { ArrowRightIcon as ArrowReturn } from 'lucide-react'
+import { sendChat } from '@/app/api'
 
 export default function NaturalLanguageInput() {
   const [input, setInput] = useState('')
@@ -13,10 +14,16 @@ export default function NaturalLanguageInput() {
     }
   }, [])
 
-  const handleSubmit = (e: FormEvent) => {
+  const handleSubmit = async (e: FormEvent) => {
     e.preventDefault()
-    // Handle the submission here
-    console.log('Submitted:', input)
+    const temp = input
+    setInput('')
+    try{
+      const res = await sendChat(temp)
+      console.log('Chat Response:', res)
+    } catch (error) {
+      console.error('Chat Error:', error)
+    }
   }
 
   return (

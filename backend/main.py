@@ -6,6 +6,9 @@ from pydantic import BaseModel
 from datetime import datetime
 from typing import Optional, List  # Added this import
 
+load_dotenv()
+client = OpenAI()
+
 app = FastAPI()
 app.add_middleware(
     CORSMiddleware,
@@ -48,8 +51,6 @@ async def handle_chat(data: dict):
         "response": completion.choices[0].message.content
     }
 
-# load_dotenv()
-# client = OpenAI()
 
 # completion = client.chat.completions.create(
 #     model="gpt-4o-mini",
