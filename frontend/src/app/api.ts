@@ -1,0 +1,23 @@
+// src/lib/api.ts
+const API_URL = 'http://localhost:8000'
+
+export async function sendRanges(ranges: { inPosition: string[], outOfPosition: string[] }) {
+  try {
+    const response = await fetch(`${API_URL}/api/ranges`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify(ranges),
+    })
+
+    if (!response.ok) {
+      throw new Error(`HTTP error! status: ${response.status}`)
+    }
+
+    return await response.json()
+  } catch (error) {
+    console.error('API Error:', error)
+    throw error
+  }
+}

@@ -2,6 +2,7 @@
 
 import React, { useState, useCallback, useRef, useEffect } from 'react'
 import { ChevronDown } from 'lucide-react'
+import { sendRanges } from '../app/api'
 
 type Hand = string
 type Range = Set<Hand>
@@ -136,8 +137,15 @@ export default function RangeInput() {
   }, [])
 
   useEffect(() => {
-    console.log('Current Ranges:', currentRanges)
-    // Example: sendToBackend(currentRanges)
+    const sendRangesToBackend = async (ranges: { inPosition: string[], outOfPosition: string[] }) => {
+      try{
+        const result = await sendRanges(ranges)
+        console.log('Result:', result)
+      } catch (error) {
+        console.error('Error:', error)
+      }
+    }
+    sendRangesToBackend(currentRanges)
   }, [currentRanges])
 
   return (
@@ -176,4 +184,3 @@ export default function RangeInput() {
     </div>
   )
 }
-
