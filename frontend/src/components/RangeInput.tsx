@@ -125,11 +125,11 @@ export default function RangeInput() {
   const [oopRange, setOopRange] = useState<Range>(new Set())
   const [isCollapsed, setIsCollapsed] = useState(false)
   const [currentRanges, setCurrentRanges] = useState({
-    inPosition: [] as string[],
-    outOfPosition: [] as string[]
+    ip_range: [] as string[],
+    oop_range: [] as string[]
   })
 
-  const updateCurrentRanges = useCallback((position: 'inPosition' | 'outOfPosition', range: Range) => {
+  const updateCurrentRanges = useCallback((position: 'ip_range' | 'oop_range', range: Range) => {
     setCurrentRanges(prev => ({
       ...prev,
       [position]: Array.from(range)
@@ -137,7 +137,7 @@ export default function RangeInput() {
   }, [])
 
   useEffect(() => {
-    const sendRangesToBackend = async (ranges: { inPosition: string[], outOfPosition: string[] }) => {
+    const sendRangesToBackend = async (ranges: { ip_range: string[], oop_range: string[] }) => {
       try{
         const result = await sendRanges(ranges)
         console.log('Result:', result)
@@ -171,13 +171,13 @@ export default function RangeInput() {
             range={ipRange} 
             setRange={setIpRange} 
             title="In Position" 
-            onRangeChange={(range) => updateCurrentRanges('inPosition', range)}
+            onRangeChange={(range) => updateCurrentRanges('ip_range', range)}
           />
           <PokerGrid 
             range={oopRange} 
             setRange={setOopRange} 
             title="Out of Position" 
-            onRangeChange={(range) => updateCurrentRanges('outOfPosition', range)}
+            onRangeChange={(range) => updateCurrentRanges('oop_range', range)}
           />
         </div>
       </div>

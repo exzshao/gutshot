@@ -1,4 +1,4 @@
-from .postflop_solver import PostFlopSolver
+from postflop_solver_python import PostFlopSolver
 
 def run_solver(oop_range, ip_range, flop, turn, river, bet_sizes, raise_sizes):
     solver = PostFlopSolver(

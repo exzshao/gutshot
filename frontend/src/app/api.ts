@@ -1,7 +1,7 @@
 // src/lib/api.ts
 const API_URL = 'http://localhost:8000'
 
-export async function sendRanges(ranges: { inPosition: string[], outOfPosition: string[] }) {
+export async function sendRanges(ranges: { ip_range: string[], oop_range: string[] }) {
   try {
     const response = await fetch(`${API_URL}/api/ranges`, {
       method: 'POST',

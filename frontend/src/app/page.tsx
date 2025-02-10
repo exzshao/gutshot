@@ -5,8 +5,11 @@ import RangeInput from '@/components/RangeInput'
 export default function Home() {
   return (
     <main className="min-h-screen w-full">
-      <RangeInput />
-      <NLPInput />
+      <div style={{ transform: 'scale(0.66)', transformOrigin: 'top center' }}>
+
+        <RangeInput />
+        <NLPInput />
+      </div>
     </main>
   )
 }
