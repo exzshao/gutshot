@@ -23,15 +23,19 @@ class Ranges(BaseModel):
     ip_range: List[str]
     oop_range: List[str]
 
-class SolverData(BaseModel):
-    oop_range: str
-    ip_range: str
+class SolverInferData(BaseModel): # TODO: this should actually just contain -> player specific hand, flop, turn, river, actions
     flop: str
     turn: Optional[str] = None
     river: Optional[str] = None
-    bet_sizes: Optional[str] = None # TODO remove bet sizes and raise sizes from this and add as separate UI cuz LLM gets confused.
-    raise_sizes: Optional[str] = None
+    player_hand: Optional[str] = None
+    # bet_sizes: Optional[str] = None # TODO remove bet sizes and raise sizes from this and add as separate UI cuz LLM gets confused.
+    # raise_sizes: Optional[str] = None
     actions: Optional[List[str]] = None
+    other_notes: Optional[str] = None
+
+class BetAndRaiseSizes(BaseModel):
+    bet_sizes: List[int]
+    raise_sizes: List[int]
 
 ranges = {
     "ip_range": [],
@@ -56,28 +60,26 @@ async def handle_chat(data: dict):
         model="gpt-4o-mini",
         messages=[
             {"role": "system", "content": f"""
-                Extract structured poker solver data from user messages. The out-of-position (OOP) range is '{ranges["oop_range"]}' 
-                and the in-position (IP) range is '{ranges['ip_range']}'. 
+                Extract structured poker solver data from user messages. 
                 Return the data in JSON format matching this schema:
                 {{
-                    "oop_range": "{ranges['oop_range']}",
-                    "ip_range": "{ranges['ip_range']}",
                     "flop": "<Flop cards> or null if not provided",
                     "turn": "<Turn card> or null if not provided",
                     "river": "<River card> or null if not provided",
-                    "bet_sizes": "<Bet sizes used> or null if not provided",
-                    "raise_sizes": "<Raise sizes used> or null if not provided"
-                    "actions": ["<action1>", "<action2>", ...]
+                    "player_hand": "<Player hand> or null if not provided",
+                    "actions": ["<action1>", "<action2>", ...],
+                    "other_notes": "<Other notes> or null if not provided"
                 }}
 
                 IMPORTANT:
                 1. All card values must be standardized to abbreviated format. For example, output "Qd" for "queen of diamonds", "10h" for "10 of hearts", "5s" for "5 of spades", etc. Even if the user writes full names (e.g., "queen of dimonds, 10 of hearts, 5 of spades"), output the cards as "Qd", "10h", "5s".
                 2. If a card's suit is not specified (e.g., just "queen"), choose a random valid suit (c, d, h, or s) and output in abbreviated format.
                 3. All actions should be standardized. Use lower-case action names and a consistent format. For example, output actions as "check", "fold", "call", "bet(<amount>)", "raise(<amount>)", "allin(<amount>)".
-            """},
+                4. Any parts of the message that are not relevant to the structured data should go in other notes.
+             """},
             {"role": "user", "content": data["message"]}
         ],
-        response_format=SolverData,
+        response_format=SolverInferData,
     )
     # TODO: Also need to extract ACTIONS from user message and play these actions in solver.
     solver_data = completion.choices[0].message.parsed

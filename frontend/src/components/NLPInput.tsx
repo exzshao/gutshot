@@ -4,7 +4,11 @@ import { useState, FormEvent, useRef, useEffect } from 'react'
 import { ArrowRightIcon as ArrowReturn } from 'lucide-react'
 import { sendChat } from '@/app/api'
 
-export default function NaturalLanguageInput() {
+interface NaturalLanguageInputProps{
+  onMessageReturn: (data: string) => void
+}
+
+export default function NaturalLanguageInput({ onMessageReturn }: NaturalLanguageInputProps) {
   const [input, setInput] = useState('')
   const inputRef = useRef<HTMLInputElement>(null)
 
@@ -20,6 +24,7 @@ export default function NaturalLanguageInput() {
     setInput('')
     try{
       const res = await sendChat(temp)
+      onMessageReturn(res.response)
       console.log('Chat Response:', res)
     } catch (error) {
       console.error('Chat Error:', error)
